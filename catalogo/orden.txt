@@ -1,0 +1,30 @@
+01 acuarela Acuarela de estudio
+02 papel Papel recortado
+03 suizo Tipografía suiza
+04 codigo Código vivo
+05 riso Risografía / zine
+06 patente Lámina de patente
+07 pop Neo-pop sticker
+08 noir Noir cinematográfico
+09 pixel Pixel art RPG
+10 generativo Arte generativo
+11 bauhaus Bauhaus
+12 constructivista Constructivista
+13 brutalista Brutalismo web
+14 artdeco Art déco
+15 tarot Tarot
+16 keynote Keynote de cristal
+17 minimal Minimal blanco
+18 datos Periodismo de datos
+19 isometrico Isométrico
+20 manga Manga
+21 cosmos Explainer espacial
+22 plano Plano técnico
+23 cartografia Cartografía antigua
+24 ukiyoe Ukiyo-e
+25 collage Collage de revista
+26 cuaderno Cuaderno / bullet journal
+27 crt Monitor CRT ámbar
+28 glitch Glitch editorial
+29 hud HUD futurista
+30 synthwave Synthwave 80s
