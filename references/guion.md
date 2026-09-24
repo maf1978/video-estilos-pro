@@ -16,7 +16,7 @@ Todos aceptan `dur` (segundos) y `say` (lo que se narra → subtítulos). En tí
 | `steps` | `title`, `items[]` (2–4) | Proceso/método |
 | `cta` | `title`, `sub`, `button` | Cierre con llamada a la acción |
 
-Nivel del video: `style`, `format` ('16:9' | '9:16'), `fps` (30), `person` ({photo, look} o false), `mascot`, `captions` (true/false), `words` (ruta a words.json o arreglo), `beats` (ruta a beats.json), `palette` (sobrescribe colores del estilo, p.ej. `{accent:'#00B3A4'}` para la marca).
+Nivel del video: `style`, `format` ('16:9' | '9:16'), `fps` (30), `person` ({photo, look} o false), `mascot`, `captions` (true/false), `words` (ruta a words.json o arreglo), `beats` (ruta a beats.json), `palette` (sobrescribe colores del estilo, p.ej. `{accent:'#00B3A4', bg:'#FFFFFF'}` para la marca), `font` (`{display:'Bebas Neue', body:'Poppins'}`, cualquier fuente de Google Fonts), `mascotColor` ('#hex'), `mascot` también acepta `{image:'assets/logo.png'}` (su logo o personaje como mascota).
 
 ## Mezclar estilos
 Cualquier escena acepta `style: '<id>'` para usar otro estilo solo en esa escena (la transición de entrada es la del estilo nuevo). Ideal para intros o "mira todo lo que se puede hacer". Regla: cambia de estilo en momentos con sentido (un bloque por idea), no en cada escena al azar, salvo en montajes rápidos.
