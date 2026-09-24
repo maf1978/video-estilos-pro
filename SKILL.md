@@ -56,7 +56,7 @@ python3 contact.py stills qa.jpg      # hoja de contacto
 Mira la hoja (Read) y repasa `references/errores.md`. Busca: textos cortados o encimados, títulos demasiado largos (acórtalos), escenas vacías, capturas ilegibles. Revisa también una transición: `node render.mjs --stills <inicio_escena+0.25>`. Corrige y repite hasta que todo esté limpio. Para cambiar de estilo solo cambia `style` (prueba con `--query "style=noir"` sin editar).
 
 ## 5 · Audio
-- **Voz en off** (si hay): ponla en `audio/vo.wav|mp3`, corre `python3 vo_words.py audio/vo.wav`. Con las marcas de tiempo, ajusta `dur` de cada escena para que empiece cuando empieza su frase, y pon `words: 'audio/words.json'` en `video.js` (subtítulos palabra por palabra exactos).
+- **Voz en off** (si hay): ponla en `audio/vo.wav|mp3`, corre `python3 vo_words.py audio/vo.wav` (usa AssemblyAI si hay `ASSEMBLYAI_API_KEY`; es lo recomendado para cortes y sincronía). Con las marcas de tiempo, ajusta `dur` de cada escena para que empiece cuando empieza su frase, y pon `words: 'audio/words.json'` en `video.js` (subtítulos palabra por palabra exactos).
 - **Música**: toma el `music` del estilo (en `styles/<id>.js`), adáptalo al tema y genera: `python3 suno_music.py "<prompt>" "<título>" audio/music.mp3`. Opcional: `python3 beats.py audio/music.mp3` y `beats: 'audio/beats.json'` en `video.js` para que los cortes caigan en el beat.
 - Los SFX salen solos del perfil del estilo (no hay que hacer nada).
 
