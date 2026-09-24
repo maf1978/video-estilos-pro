@@ -2,16 +2,25 @@
 import * as L from './lib.js';
 import { BASE } from './base.js';
 
-export async function boot(spec, mod) {
+// mods: { styleId: module } — a video can mix styles (scene.style overrides spec.style)
+export async function boot(spec, mods) {
+  if (mods.id) mods = { [mods.id]: mods };
   const vertical = spec.format === '9:16';
   const W = vertical ? 1080 : 1920, H = vertical ? 1920 : 1080;
-  const S = Object.assign({}, BASE, mod);
-  S.palette = Object.assign({}, BASE.palette, mod.palette || {}, spec.palette || {});
-  S.type = Object.assign({}, BASE.type, mod.type || {});
+  const SS = {};
+  for (const [id, mod] of Object.entries(mods)) {
+    const st = Object.assign({}, BASE, mod);
+    st.palette = Object.assign({}, BASE.palette, mod.palette || {}, spec.palette || {});
+    st.type = Object.assign({}, BASE.type, mod.type || {});
+    SS[id] = st;
+  }
+  const mainId = spec.style in SS ? spec.style : Object.keys(SS)[0];
+  let S = SS[mainId];
+  const use = id => { S = SS[id] || SS[mainId]; K.S = S; K.P = S.palette; };
 
-  // fonts
-  if (S.fonts) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${S.fonts}&display=block`; document.head.appendChild(l); await new Promise(r => { l.onload = r; l.onerror = r; }); }
-  await Promise.all((S.fontLoads || []).map(f => document.fonts.load(f).catch(() => {})));
+  // fonts (every style in the video)
+  for (const st of Object.values(SS)) if (st.fonts) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${st.fonts}&display=block`; document.head.appendChild(l); await new Promise(r => { l.onload = r; l.onerror = r; }); }
+  await Promise.all(Object.values(SS).flatMap(st => (st.fontLoads || []).map(f => document.fonts.load(f).catch(() => {}))));
   await document.fonts.ready;
 
   const main = L.canvas(W, H); main.id = 'stage'; document.body.style.margin = 0; document.body.style.background = '#000'; document.body.appendChild(main);
@@ -33,7 +42,7 @@ export async function boot(spec, mod) {
     ctx: mctx, t: 0, frame: 0, fps: spec.fps || 30,
     look: Object.assign({}, L.CHAR_DEFAULT, person?.look || {}),
     cues: [], recording: false,
-    cue(name, at, extra = {}) { if (this.recording) this.cues.push({ name, t: this._sceneStart + at, ...extra }); },
+    cue(name, at, extra = {}) { if (this.recording) this.cues.push({ name, t: this._sceneStart + at, sfx: this.S.sfx, ...extra }); },
     // content boxes live above the caption band; boxFull ignores it (portraits, full-bleed things)
     cap: spec.captions === false ? 1 : (vertical ? 0.78 : 0.84),
     box(x, y, w, h) { const c = this.cap, t = S.safeTop || 0, k = c - t; return { x: x * W, y: (t + y * k) * H, w: w * W, h: h * H * k }; },
@@ -59,12 +68,12 @@ export async function boot(spec, mod) {
     rich(str) { const out = []; let em = false; for (const part of String(str).split(/(\*)/)) { if (part === '*') { em = !em; continue; } for (const w of part.split(/(\n)|[ \t]+/)) if (w) out.push({ w, em }); } return out; },
   };
   window.K = K;
-  if (S.setup) await S.setup(K);
+  for (const id of Object.keys(SS)) { use(id); if (S.setup) await S.setup(K); }
+  use(mainId);
 
   // ---------- timeline ----------
-  const TR = S.transDur ?? 0.5;
   let acc = 0;
-  const scenes = spec.scenes.map((d, i) => { const sc = { d, i, type: d.type, dur: d.dur || 4, start: acc }; acc += sc.dur; return sc; });
+  const scenes = spec.scenes.map((d, i) => { const sid = d.style in SS ? d.style : mainId, sc = { d, i, sid, type: d.type, dur: d.dur || 4, start: acc, tr: SS[sid].transDur ?? 0.5 }; acc += sc.dur; return sc; });
   if (beats && spec.beatSnap !== false && beats.beats?.length) {
     // nudge each cut onto the nearest strong-ish beat within ±0.25 s
     const bt = beats.beats, st = beats.strength || bt.map(() => 1), thr = [...st].sort((a, b) => a - b)[Math.floor(st.length * 0.5)];
@@ -95,7 +104,7 @@ export async function boot(spec, mod) {
 
   // ---------- scene rendering ----------
   function renderScene(sc, local, ctx) {
-    K.ctx = ctx; ctx.save(); ctx.clearRect(0, 0, W, H);
+    use(sc.sid); K.ctx = ctx; ctx.save(); ctx.clearRect(0, 0, W, H);
     const s = { i: sc.i, type: sc.type, d: sc.d, t: local, dur: sc.dur, p: L.clamp(local / sc.dur), variant: sc.i, K };
     S.background(K, s);
     (LAYOUTS[sc.type] || LAYOUTS.statement)(K, s);
@@ -103,7 +112,7 @@ export async function boot(spec, mod) {
     ctx.restore();
   }
   function camera(ctx, src, sc, local) {
-    let z = 1, dx = 0, dy = 0;
+    use(sc.sid); let z = 1, dx = 0, dy = 0;
     if (S.camera !== false) {
       z = 1 + (S.push ?? 0.03) * L.E.inOut(L.clamp(local / sc.dur));
       if (beats?.beats) { // small bump on strong beats
@@ -119,20 +128,20 @@ export async function boot(spec, mod) {
     K.t = t; K.frame = Math.round(t * K.fps);
     let i = scenes.findIndex(sc => t >= sc.start && t < sc.start + sc.dur); if (i < 0) i = scenes.length - 1;
     const sc = scenes[i], local = t - sc.start;
-    mctx.save(); mctx.fillStyle = S.palette.bg; mctx.fillRect(0, 0, W, H);
-    if (i > 0 && local < TR) {
+    use(sc.sid); mctx.save(); mctx.fillStyle = S.palette.bg; mctx.fillRect(0, 0, W, H);
+    if (i > 0 && local < sc.tr) {
       const prev = scenes[i - 1];
       renderScene(prev, prev.dur + local, bufA.getContext('2d'));
       renderScene(sc, local, bufB.getContext('2d'));
       const A = camA, B = camB, ax = A.getContext('2d'), bx = B.getContext('2d'); // camera-applied copies
       ax.clearRect(0, 0, W, H); bx.clearRect(0, 0, W, H); camera(ax, bufA, prev, prev.dur); camera(bx, bufB, sc, local);
-      K.ctx = mctx; S.transition(K, A, B, L.E.inOut(local / TR), { from: prev, to: sc, raw: local / TR });
+      use(sc.sid); K.ctx = mctx; S.transition(K, A, B, L.E.inOut(local / sc.tr), { from: prev, to: sc, raw: local / sc.tr });
     } else {
       renderScene(sc, local, bufB.getContext('2d'));
       camera(mctx, bufB, sc, local);
     }
     // captions
-    K.ctx = mctx;
+    use(sc.sid); K.ctx = mctx;
     if (spec.captions !== false) {
       const ln = lines.find(l => t >= l[0].s - 0.05 && t <= l[l.length - 1].e + 0.35);
       if (ln) { const act = ln.findIndex(w => t >= w.s && t < w.e); const box = vertical ? K.boxFull(0.06, 0.82, 0.88, 0.06) : K.boxFull(0.14, 0.87, 0.72, 0.08); S.caption(K, ln.map(w => w.w), act < 0 ? (t > ln[ln.length - 1].e ? ln.length : -1) : act, box, L.clamp((t - ln[0].s + 0.05) / 0.2)); }
@@ -144,11 +153,11 @@ export async function boot(spec, mod) {
   // ---------- dry pass: collect sound cues ----------
   const dry = L.canvas(W, H).getContext('2d');
   K.recording = true;
-  for (const sc of scenes) { K._sceneStart = sc.start; if (sc.i > 0) K.cue('trans', 0, { style: S.id }); renderScene(sc, 0.001, dry); }
+  for (const sc of scenes) { K._sceneStart = sc.start; if (sc.i > 0) { use(sc.sid); K.cue('trans', 0, { style: S.id }); } renderScene(sc, 0.001, dry); }
   K.recording = false;
   const SFX = K.cues.sort((a, b) => a.t - b.t);
 
-  Object.assign(window, { renderAt, DURATION, SFX, VW: W, VH: H, SCENES: scenes.map(s => ({ type: s.type, start: s.start, dur: s.dur })), STYLE: { id: S.id, name: S.name, sfx: S.sfx, music: S.music } });
+  Object.assign(window, { renderAt, DURATION, SFX, VW: W, VH: H, SCENES: scenes.map(s => ({ type: s.type, start: s.start, dur: s.dur, style: s.sid })), STYLE: { id: SS[mainId].id, name: SS[mainId].name, sfx: SS[mainId].sfx, music: SS[mainId].music, mixed: Object.keys(SS).length > 1 } });
   renderAt(Number(new URLSearchParams(location.search).get('t') || 0.9));
   window.READY = true;
 }

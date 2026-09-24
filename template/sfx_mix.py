@@ -267,7 +267,7 @@ def render(name, dur):
     return cache[name]
 last = {}
 for ev in events:
-    for name, g in prof.get(ev['name'], []):
+    for name, g in PROFILES.get(ev.get('sfx') or '', prof).get(ev['name'], []):
         if ev['name'] in ('enter', 'pop', 'title') and ev['t'] - last.get(name, -9) < 0.12: continue  # avoid machine-gun stacking
         last[name] = ev['t']
         x = render(name, ev.get('dur')) * g; s = n(ev['t'])

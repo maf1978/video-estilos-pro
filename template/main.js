@@ -4,5 +4,6 @@ const q = new URLSearchParams(location.search);
 const spec = (await import('./' + (q.get('spec') || 'video.js'))).default;
 if (q.get('style')) spec.style = q.get('style');
 if (q.get('format')) spec.format = q.get('format');
-const style = (await import(`./styles/${spec.style}.js`)).default;
-await boot(spec, style);
+const ids = [...new Set([spec.style, ...spec.scenes.map(s => s.style).filter(Boolean)])];
+const mods = {}; for (const id of ids) mods[id] = (await import(`./styles/${id}.js`)).default;
+await boot(spec, mods);

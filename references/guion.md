@@ -18,6 +18,9 @@ Todos aceptan `dur` (segundos) y `say` (lo que se narra → subtítulos). En tí
 
 Nivel del video: `style`, `format` ('16:9' | '9:16'), `fps` (30), `person` ({photo, look} o false), `mascot`, `captions` (true/false), `words` (ruta a words.json o arreglo), `beats` (ruta a beats.json), `palette` (sobrescribe colores del estilo, p.ej. `{accent:'#00B3A4'}` para la marca).
 
+## Mezclar estilos
+Cualquier escena acepta `style: '<id>'` para usar otro estilo solo en esa escena (la transición de entrada es la del estilo nuevo). Ideal para intros o "mira todo lo que se puede hacer". Regla: cambia de estilo en momentos con sentido (un bloque por idea), no en cada escena al azar, salvo en montajes rápidos.
+
 ## Escribir un guion que retenga
 1. **Gancho en 3 s**: la escena 1 es un `hook` con la promesa o la sorpresa ("Nadie dibujó esto."). Nada de "hola, bienvenidos".
 2. **Tensión → solución → prueba → acción**: problema (statement/compare), cómo se resuelve (list/steps), prueba real (stat/media/quote), CTA.
