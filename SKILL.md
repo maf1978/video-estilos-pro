@@ -1,15 +1,15 @@
 ---
 name: video-estilos-pro
-description: Crea videos animados 100% con código (JavaScript + canvas, sin IA de imágenes ni de video) en 30 estilos visuales premium — acuarela, papel recortado, tipografía suiza, noir, código vivo, risografía, patente grabada, neo-pop, pixel art, arte generativo, bauhaus, manga, synthwave, keynote, periodismo de datos y más — para cualquier tema y cualquier persona, en 16:9 o 9:16, con música (Suno), efectos de sonido sintetizados, subtítulos y voz en off sincronizada. Úsalo siempre que el usuario pida un video animado, una intro de YouTube, un explainer, un reel/short animado, un video "con estilo X", un video para su curso/negocio/marca, o quiera convertir un guion, tema o voz en off en un video animado, aunque no mencione este skill.
+description: Crea videos animados 100% con código (JavaScript + canvas, sin IA de imágenes ni de video) en 31 estilos visuales premium — acuarela, papel recortado, tipografía suiza, noir, código vivo, risografía, patente grabada, neo-pop, pixel art, arte generativo, bauhaus, manga, synthwave, keynote, periodismo de datos y más — para cualquier tema y cualquier persona, en 16:9 o 9:16, con música (Suno), efectos de sonido sintetizados, subtítulos y voz en off sincronizada. Úsalo siempre que el usuario pida un video animado, una intro de YouTube, un explainer, un reel/short animado, un video "con estilo X", un video para su curso/negocio/marca, o quiera convertir un guion, tema o voz en off en un video animado, o ya se grabó a cámara y quiere animaciones encima de su video, aunque no mencione este skill.
 ---
 
 # Video Estilos Pro
 
-Motor de video por código: el usuario da un tema, tú escribes el guion como una lista de escenas, eliges uno de 30 estilos y el motor lo dibuja cuadro por cuadro (canvas + Playwright + ffmpeg). Cada estilo cambia **todo**: tipografía, personajes, fondos, animaciones de entrada, transiciones, subtítulos, sonidos y música.
+Motor de video por código: el usuario da un tema, tú escribes el guion como una lista de escenas, eliges uno de 31 estilos y el motor lo dibuja cuadro por cuadro (canvas + Playwright + ffmpeg). Cada estilo cambia **todo**: tipografía, personajes, fondos, animaciones de entrada, transiciones, subtítulos, sonidos y música.
 
 Archivos del skill:
-- `template/` — el proyecto que se copia (motor, 30 estilos, scripts)
-- `references/estilos.md` — catálogo de los 30 estilos: cuándo usar cada uno. **Léelo antes de recomendar un estilo.**
+- `template/` — el proyecto que se copia (motor, 31 estilos, scripts; `anclas.py` frases→tiempos, `componer.sh` animación sobre la grabación de la persona)
+- `references/estilos.md` — catálogo de los 31 estilos: cuándo usar cada uno. **Léelo antes de recomendar un estilo.**
 - `references/guion.md` — tipos de escena, campos y cómo escribir un guion que retenga. **Léelo antes de escribir el guion.**
 - `references/historia.md` — **modo historia**: personaje continuo, cámara, transiciones dentro de la historia, escenarios, lápiz que dibuja en vivo. Para intros, historias y todo lo que deba sentirse como un solo video.
 - `references/errores.md` — errores reales que ya se cometieron con este skill. **Léelo antes de mostrar cualquier borrador.**
@@ -58,7 +58,8 @@ Mira la hoja (Read) y repasa `references/errores.md`. Busca: textos cortados o e
 ## 5 · Audio
 - **Voz en off** (si hay): ponla en `audio/vo.wav|mp3`, corre `python3 vo_words.py audio/vo.wav` (usa AssemblyAI si hay `ASSEMBLYAI_API_KEY`; es lo recomendado para cortes y sincronía). Con las marcas de tiempo, ajusta `dur` de cada escena para que empiece cuando empieza su frase, y pon `words: 'audio/words.json'` en `video.js` (subtítulos palabra por palabra exactos).
 - **Música**: toma el `music` del estilo (en `styles/<id>.js`), adáptalo al tema y genera: `python3 suno_music.py "<prompt>" "<título>" audio/music.mp3`. Opcional: `python3 beats.py audio/music.mp3` y `beats: 'audio/beats.json'` en `video.js` para que los cortes caigan en el beat.
-- Los SFX salen solos del perfil del estilo (no hay que hacer nada).
+- Los SFX salen solos del perfil del estilo. Pregunta antes si quiere música y SFX: hay creadores que prefieren solo su voz (entonces usa `componer.sh`, que no mezcla nada más).
+- **Si la persona se grabó a cámara**: su video es la base y la animación va encima solo en los tramos animados. Sigue "Si la persona se grabó a cámara" en `references/historia.md` (`anclas.py` → `timing.js` → `./componer.sh aroll.mov nombre`).
 
 ## 6 · Render y entrega
 ```bash
@@ -75,3 +76,5 @@ Mira 3–4 cuadros del mp4 final (ffmpeg -ss) antes de entregar. Entrega ambos a
 - Nunca pongas en pantalla el nombre de un tercero (miembro, cliente, alumno) sin permiso: usa "un miembro de la comunidad".
 - Lo que muestras debe coincidir con lo que regalas/vendes (no enseñes estilos que el espectador no va a recibir sin aclararlo).
 - En historias usa `chrome: false` (sin encabezados de página) y pocas cosas por escena.
+- Si la voz nombra una herramienta, red o resultado, muéstralo real: logo de la app (`sticker`), captura (`shotCard` + marcatextos en la cifra). Difumina nombres y fotos de terceros en las capturas.
+- Ideas abstractas → comparación concreta (antes/después) con el personaje haciendo la acción; listas habladas → un ícono animado por cosa, calzado a la palabra.
