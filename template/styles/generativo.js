@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const INK = '#1C1B22', OR = '#D9653B', PAPER = '#F5F2EA', GREY = '#6B6874';
 let paperC, grain;
 const BUCKETS = 48;
@@ -59,7 +62,7 @@ const FLOW = L.memo(h => {
   buckets.forEach(b => fx.stroke(b));
   return { full, buckets, strokes, w, h: S.h, lw: fx.lineWidth };
 });
-const below = (K, b) => { const m = (K.vertical ? 150 : 120) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
+const below = (K, b) => { if (!CH(K)) return b; const m = (K.vertical ? 150 : 120) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
 
 export default {
   id: 'generativo', name: 'Arte generativo',
@@ -79,10 +82,12 @@ export default {
     // crop marks + registration target: a plotter sheet
     const m = 34 * u, l = 26 * u; ctx.strokeStyle = 'rgba(28,27,34,.45)'; ctx.lineWidth = 1 * u;
     for (const [x, y, dx, dy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]) { ctx.beginPath(); ctx.moveTo(x, y + dy * l); ctx.lineTo(x, y); ctx.lineTo(x + dx * l, y); ctx.stroke(); }
-    const rx = W - 70 * u, ry = 70 * u; ctx.beginPath(); ctx.arc(rx, ry, 10 * u, 0, 7); ctx.moveTo(rx - 16 * u, ry); ctx.lineTo(rx + 16 * u, ry); ctx.moveTo(rx, ry - 16 * u); ctx.lineTo(rx, ry + 16 * u); ctx.stroke();
+    if (CH(K)) {
+const rx = W - 70 * u, ry = 70 * u; ctx.beginPath(); ctx.arc(rx, ry, 10 * u, 0, 7); ctx.moveTo(rx - 16 * u, ry); ctx.lineTo(rx + 16 * u, ry); ctx.moveTo(rx, ry - 16 * u); ctx.lineTo(rx, ry + 16 * u); ctx.stroke();
     const f = K.S.type.label(18 * u);
     L.text(ctx, `PLOT ${String(s.i + 1).padStart(3, '0')} · SEED ${(s.i * 37 + 5) % 97}.${s.i % 10}`, 78 * u, 78 * u, { font: f, color: INK });
     L.text(ctx, `2 plumas · ${Math.round(K.t * 1000 + 1200).toLocaleString('es-MX')} trazos`, 78 * u, 104 * u, { font: K.S.type.mono(18 * u), color: GREY });
+    }
   },
   headline(K, str, box, p, s, o = {}) { title(K, str, below(K, box), p, { align: o.align, size: o.size, color: INK, emColor: OR, reveal: 'wipe', valign: 'middle' }); },
   text(K, str, box, p, role, s, o = {}) {

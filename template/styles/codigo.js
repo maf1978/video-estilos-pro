@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const BG = '#0E1220', SIDE = '#141A33', BAR = '#12172C', FG = '#C9CFE0', DIM = '#4A5270', OR = '#E08A5E', LAV = '#A9A4F5', SAND = '#E9D7A8', TEAL = '#79C8B8', PINK = '#E07AA0';
 const FILES = ['▾ proyecto', '   engine.js', '   escenas.js', '   estilo.js', '   render.mjs', '▸ audio', '▸ assets'];
 const SRC = 'renderAt(t)constescena=draw()write(T)face()TR.iris()bootVideo=>{}ctx.fill()await';
@@ -39,7 +42,7 @@ const ASCII = L.memo((h, cell) => {
 });
 
 // keep content inside the editor pane: right of the file tree, below the tab bar
-function pane(K, box) { const u = K.u, b = { ...box }, left = K.vertical ? 60 * u : 300 * u, top = 104 * u; if (b.x < left) { b.w -= left - b.x; b.x = left; } if (b.y < top) { b.h -= top - b.y; b.y = top; } return b; }
+function pane(K, box) { const u = K.u, b = { ...box }, left = K.vertical ? 60 * u : 300 * u, top = CH(K) ? 104 * u : 40 * u; if (b.x < left) { b.w -= left - b.x; b.x = left; } if (b.y < top) { b.h -= top - b.y; b.y = top; } return b; }
 function mono(K, sz) { return `500 ${sz * K.u}px "JetBrains Mono"`; }
 
 export default {
@@ -56,7 +59,8 @@ export default {
   background(K, s) {
     const { ctx, W, H, u } = K, V = K.vertical;
     ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
-    // title bar
+    if (CH(K)) {
+// title bar
     ctx.fillStyle = BAR; ctx.fillRect(0, 0, W, 50 * u);
     ['#E0625A', '#E3B341', '#58B368'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc((30 + i * 26) * u, 25 * u, 7 * u, 0, 7); ctx.fill(); });
     L.text(ctx, 'escena_' + String(s.i + 1).padStart(2, '0') + '.js — proyecto', W / 2, 32 * u, { font: mono(K, 18), color: DIM, align: 'center' });
@@ -64,13 +68,14 @@ export default {
     ctx.fillStyle = '#0B0F1C'; ctx.fillRect(V ? 0 : 230 * u, 50 * u, W, 34 * u);
     ctx.fillStyle = BG; ctx.fillRect(V ? 0 : 230 * u, 50 * u, 190 * u, 34 * u); ctx.fillStyle = OR; ctx.fillRect(V ? 0 : 230 * u, 50 * u, 190 * u, 2 * u);
     L.text(ctx, 'escena_' + String(s.i + 1).padStart(2, '0') + '.js', (V ? 16 : 246) * u, 73 * u, { font: mono(K, 16), color: SAND });
+    }
     if (!V) { // file tree
-      ctx.fillStyle = SIDE; ctx.fillRect(0, 50 * u, 230 * u, H);
+      ctx.fillStyle = SIDE; ctx.fillRect(0, CH(K) ? 50 * u : 0, 230 * u, H);
       FILES.forEach((f, i) => L.text(ctx, f, 18 * u, (100 + i * 32) * u, { font: mono(K, 18), color: i === 2 ? SAND : DIM }));
       L.text(ctx, 'EXPLORADOR', 18 * u, (100 + 8 * 32) * u + 20 * u, { font: `700 ${14 * u}px "JetBrains Mono"`, color: '#353C5C' });
     }
     // gutter line numbers (fixed ruler behind content)
-    const gx = V ? 34 * u : 262 * u, top = 110 * u, lh = 36 * u, n = Math.floor((H * K.cap - top) / lh);
+    const gx = V ? 34 * u : 262 * u, top = (CH(K) ? 110 : 46) * u, lh = 36 * u, n = Math.floor((H * K.cap - top) / lh);
     for (let k = 0; k < n; k++) L.text(ctx, String(k + 1 + s.i * 12), gx, top + k * lh, { font: mono(K, 15), color: k === Math.floor((s.t * 3) % n) ? '#6B7394' : '#262C47', align: 'right' });
     // small code comment strip that types in (from scene data)
     if (!V && ['statement', 'stat', 'quote', 'chapter'].includes(s.type)) {
@@ -81,10 +86,12 @@ export default {
         for (const [str, col] of ln) { if (chars <= 0) break; const part = str.slice(0, chars); chars -= str.length; ctx.font = mono(K, 17); L.text(ctx, part, x, y, { font: mono(K, 17), color: col, alpha: 0.55 }); x += ctx.measureText(part).width; }
       });
     }
-    // status bar
+    if (CH(K)) {
+// status bar
     ctx.fillStyle = '#1B2140'; ctx.fillRect(0, H - 30 * u, W, 30 * u);
     L.text(ctx, '⎇ main   ✓ 0 errores   UTF-8   JS', 16 * u, H - 10 * u, { font: mono(K, 15), color: '#8A91AE' });
     L.text(ctx, `Ln ${12 + s.i}, Col ${1 + Math.floor(s.t * 9) % 40}   render ${(K.t).toFixed(2)}s`, W - 16 * u, H - 10 * u, { font: mono(K, 15), color: '#8A91AE', align: 'right' });
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     // typed like code: caret + light comment marker

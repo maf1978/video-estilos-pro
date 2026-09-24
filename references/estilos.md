@@ -1,4 +1,4 @@
-# Los 30 estilos
+# Los 31 estilos
 
 Imágenes: `catalogo/<id>.jpg` (escena hook) y `catalogo/<id>-2.jpg` (lista); todos juntos en `catalogo/catalogo.jpg`.
 La columna **Persona** dice cómo sale la persona: **foto** = la foto recortada tratada por el estilo (sin foto, trata al personaje dibujado de la misma forma); **dibujo** = siempre el personaje dibujado con `person.look`.
@@ -36,6 +36,7 @@ La música de cada estilo está en su archivo (`music:`). Adáptala al tema ante
 | 28 | `glitch` | Glitch editorial | Negro, grotesca expandida, separación RGB controlada | Tech agresivo, música electrónica, "hackeos" | foto | digital |
 | 29 | `hud` | HUD futurista | Interfaz sci-fi cian/naranja, retículas, datos que corren, holograma | IA, futuro, ciberseguridad, datos | foto | digital |
 | 30 | `synthwave` | Synthwave 80s | Sol a franjas, rejilla que avanza, cromo y neón | Nostalgia, música, gaming, motivación | foto | retro |
+| 31 | `acuarela-viva` | Acuarela viva | Acuarela con naranja Claude, negro, blanco y rojo; la mascota resalta con borde tipo sticker | Intros con energía, historias con mascota, marcas cálidas pero fuertes | dibujo | paper |
 
 ## Cómo recomendar
 1. Tono del tema: serio/confiable → suizo, minimal, datos, keynote, noir · cálido/humano → acuarela, papel, cuaderno · tech → codigo, hud, glitch, brutalista, plano · viral/juvenil → pop, collage, riso, manga, synthwave · premium/lujo → artdeco, minimal, noir, generativo · misterio/predicción → tarot, noir, crt.

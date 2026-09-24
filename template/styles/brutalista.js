@@ -2,6 +2,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, frameBox, cover } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const BG = '#F4F4EF', INK = '#000000', YEL = '#FFE500', BLUE = '#0000EE', PINK = '#FF4FD8';
 const back = t => Math.max(0, L.E.back(t));
 const mono = (K, sz) => K.S.type.mono(sz);
@@ -35,24 +38,26 @@ export default {
     ctx.strokeStyle = 'rgba(0,0,0,.06)'; ctx.lineWidth = 1; const g = 60 * u;
     for (let x = 0; x < W; x += g) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
     for (let y = 0; y < H; y += g) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-    // address bar + marquee on top
+    if (CH(K)) {
+// address bar + marquee on top
     const bh = 44 * u; ctx.fillStyle = INK; ctx.fillRect(0, 0, W, bh);
     L.text(ctx, `file:///video/escena-${String(s.i + 1).padStart(2, '0')}.html`, 16 * u, bh * 0.66, { font: mono(K, 20 * u), color: '#FFFFFF' });
     const mq = ('★ ' + String(s.d.title || s.d.text || s.d.kicker || s.type).replace(/\*/g, '').toUpperCase() + ' ').repeat(12);
     ctx.save(); ctx.beginPath(); ctx.rect(0, bh, W, 34 * u); ctx.clip(); ctx.fillStyle = s.i % 2 ? YEL : PINK; ctx.fillRect(0, bh, W, 34 * u);
     ctx.font = K.S.type.label(20 * u); ctx.fillStyle = INK; const mw = ctx.measureText(mq).width / 12; ctx.fillText(mq, -((t * 160 * u) % mw), bh + 24 * u); ctx.restore();
     ctx.fillStyle = INK; ctx.fillRect(0, bh + 34 * u, W, 4 * u);
+    }
   },
   decor(K, s) { // a mouse cursor wandering deterministically
     const { ctx, W, H, u, t } = K, x = W * (0.9 + 0.04 * Math.sin(t * 0.7 + s.i)), y = H * (0.66 + 0.08 * Math.sin(t * 1.1 + s.i * 2));
     ctx.save(); ctx.translate(x, y); ctx.scale(1.6 * u, 1.6 * u); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 22); ctx.lineTo(6, 17); ctx.lineTo(10, 26); ctx.lineTo(14, 24); ctx.lineTo(10, 15); ctx.lineTo(17, 15); ctx.closePath(); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = INK; ctx.stroke(); ctx.restore();
   },
   headline(K, str, box, p, s, o = {}) {
-    const m = 90 * K.u; if (box.y < m) box = { ...box, y: m, h: box.h - (m - box.y) };
+    const m = CH(K) ? 90 * K.u : 0; if (box.y < m) box = { ...box, y: m, h: box.h - (m - box.y) };
     title(K, str, box, p, { align: o.align, size: o.size, color: INK, emColor: BLUE, emStyle: 'underline', emBg: BLUE, reveal: 'type', valign: 'middle' });
   },
   text(K, str, box, p, role, s, o = {}) {
-    const { ctx, u } = K, m = 90 * u; if (box.y < m) box = { ...box, y: m, h: box.h - (m - box.y) };
+    const { ctx, u } = K, m = CH(K) ? 90 * u : 0; if (box.y < m) box = { ...box, y: m, h: box.h - (m - box.y) };
     if (role === 'kicker' || role === 'label') {
       if (p <= 0) return; ctx.font = K.S.type.label(22 * u); ctx.letterSpacing = '0px'; const w = Math.min(box.w, ctx.measureText('<' + str.toUpperCase() + '>').width + 24 * u), x = o.align === 'center' ? box.x + (box.w - w) / 2 : box.x;
       ctx.fillStyle = INK; ctx.fillRect(x, box.y, w, box.h);

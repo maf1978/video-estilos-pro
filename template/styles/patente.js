@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const INK = '#2B2118', RED = '#8E2A1E', PAPER = '#EDE2C6';
 let paperC, grain;
 const LETTERS = 'ABCDEFGH';
@@ -14,7 +17,7 @@ const ENGRAVED = L.memo(h => {
   return c;
 });
 const inside = (K) => { const m = 40 * K.u; return { x: m, y: m, w: K.W - 2 * m, h: K.H - 2 * m }; };
-const below = (K, b) => { const m = (K.vertical ? 170 : 124) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
+const below = (K, b) => { const m = CH(K) ? (K.vertical ? 170 : 124) * K.u : 76 * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
 
 export default {
   id: 'patente', name: 'Lámina de patente',
@@ -36,7 +39,8 @@ export default {
   background(K, s) {
     const { ctx, u, W, H } = K; ctx.drawImage(paperC, 0, 0);
     const b = inside(K); ctx.strokeStyle = INK; ctx.lineWidth = 3 * u; ctx.strokeRect(b.x, b.y, b.w, b.h); ctx.lineWidth = 1 * u; ctx.strokeRect(b.x + 14 * u, b.y + 14 * u, b.w - 28 * u, b.h - 28 * u);
-    const n = K.spec.scenes.length, y = b.y + (K.vertical ? 64 : 46) * u;
+    if (CH(K)) {
+const n = K.spec.scenes.length, y = b.y + (K.vertical ? 64 : 46) * u;
     const hdr = sz => K.S.type.label(sz), it = sz => K.S.type.em(sz);
     if (K.vertical) {
       L.text(ctx, 'ESPECIFICACIÓN DE INVENTO', W / 2, y, { font: hdr(26 * u), color: INK, align: 'center', ls: 4 * u });
@@ -47,6 +51,7 @@ export default {
       L.text(ctx, `Lámina ${s.i + 1} de ${n}`, b.x + b.w - 60 * u, y, { font: it(24 * u), color: INK, align: 'right' });
     }
     ctx.fillStyle = INK; const ly = y + (K.vertical ? 62 : 18) * u; ctx.fillRect(W / 2 - 180 * u, ly, 360 * u, 1.2 * u);
+    }
   },
   headline(K, str, box, p, s, o = {}) { title(K, str, below(K, box), p, { align: o.align, size: o.size, color: INK, emColor: RED, reveal: 'wipe', valign: 'middle' }); },
   text(K, str, box, p, role, s, o = {}) {

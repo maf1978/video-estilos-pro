@@ -11,6 +11,8 @@ Archivos del skill:
 - `template/` — el proyecto que se copia (motor, 30 estilos, scripts)
 - `references/estilos.md` — catálogo de los 30 estilos: cuándo usar cada uno. **Léelo antes de recomendar un estilo.**
 - `references/guion.md` — tipos de escena, campos y cómo escribir un guion que retenga. **Léelo antes de escribir el guion.**
+- `references/historia.md` — **modo historia**: personaje continuo, cámara, transiciones dentro de la historia, escenarios, lápiz que dibuja en vivo. Para intros, historias y todo lo que deba sentirse como un solo video.
+- `references/errores.md` — errores reales que ya se cometieron con este skill. **Léelo antes de mostrar cualquier borrador.**
 - `references/crear-estilos.md` — contrato de un estilo (para ajustar uno o crear el 31)
 - `references/problemas.md` — errores comunes y cómo arreglarlos
 - `catalogo/` — una imagen por estilo (`<id>.jpg`, `<id>-2.jpg`) y `catalogo.jpg` con todos
@@ -34,7 +36,12 @@ Pregunta lo que falte, con opciones sugeridas para que conteste rápido:
 6. **Estilo**: manda `catalogo/catalogo.jpg` (o las imágenes individuales) y recomienda 3 estilos que encajen con el tema y el tono, explicando en una línea por qué. Si el usuario ya sabe cuál, úsalo.
 7. **Material real**: capturas, cifras, testimonios, logos (se muestran con `media`); CTA final.
 
-## 2 · Guion y storyboard (muestra antes de renderizar)
+## 2 · Elige el modo
+- **Modo historia** (recomendado para intros, historias, explicaciones con narrativa): un personaje continuo recorre escenarios; la cámara lo sigue; cada escena tiene un objeto con el que interactúa; se pueden mezclar estilos. Ver `references/historia.md` y `template/historia.example.js`.
+- **Modo escenas** (listicles rápidos, videos de datos): tipos `hook/list/stat/compare…` con layouts automáticos. Ver `references/guion.md`.
+Si dudas, pregunta: "¿lo quieres como una historia continua o como explicación rápida por puntos?".
+
+## 2b · Guion y storyboard (muestra antes de renderizar)
 Sigue `references/guion.md`. Primero escribe lo que se **dice** (`say`) como una historia con gancho en los primeros 3 s; luego asigna a cada frase el tipo de escena que mejor la muestra. Presenta una tabla: # · tipo · título en pantalla · lo que se dice · duración. Ajusta con el usuario.
 
 ## 3 · Construir `video.js`
@@ -46,7 +53,7 @@ Foto: `python3 cutout.py foto.jpg` → `assets/persona.png`.
 node render.mjs --scenes              # un cuadro por escena → stills/
 python3 contact.py stills qa.jpg      # hoja de contacto
 ```
-Mira la hoja (Read). Busca: textos cortados o encimados, títulos demasiado largos (acórtalos), escenas vacías, capturas ilegibles. Revisa también una transición: `node render.mjs --stills <inicio_escena+0.25>`. Corrige y repite hasta que todo esté limpio. Para cambiar de estilo solo cambia `style` (prueba con `--query "style=noir"` sin editar).
+Mira la hoja (Read) y repasa `references/errores.md`. Busca: textos cortados o encimados, títulos demasiado largos (acórtalos), escenas vacías, capturas ilegibles. Revisa también una transición: `node render.mjs --stills <inicio_escena+0.25>`. Corrige y repite hasta que todo esté limpio. Para cambiar de estilo solo cambia `style` (prueba con `--query "style=noir"` sin editar).
 
 ## 5 · Audio
 - **Voz en off** (si hay): ponla en `audio/vo.wav|mp3`, corre `python3 vo_words.py audio/vo.wav`. Con las marcas de tiempo, ajusta `dur` de cada escena para que empiece cuando empieza su frase, y pon `words: 'audio/words.json'` en `video.js` (subtítulos palabra por palabra exactos).
@@ -65,3 +72,6 @@ Mira 3–4 cuadros del mp4 final (ffmpeg -ss) antes de entregar. Entrega ambos a
 - No uses la misma escena dos veces seguidas; alterna ritmo (escenas rápidas de 2.5–3 s con otras de 5 s).
 - Datos, cifras y testimonios deben ser reales y del usuario. Si falta uno, pregunta o usa un marcador evidente y avisa.
 - Si el usuario pide "otro estilo", re-renderiza con `style` distinto: el guion no cambia.
+- Nunca pongas en pantalla el nombre de un tercero (miembro, cliente, alumno) sin permiso: usa "un miembro de la comunidad".
+- Lo que muestras debe coincidir con lo que regalas/vendes (no enseñes estilos que el espectador no va a recibir sin aclararlo).
+- En historias usa `chrome: false` (sin encabezados de página) y pocas cosas por escena.

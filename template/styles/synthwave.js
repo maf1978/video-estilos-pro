@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { title, para, layoutRich, drawRich } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const NIGHT = '#0D0221', PURP = '#2A0A4A', PINK = '#FF3EC8', CY = '#2DE2E6', SUN1 = '#FFD319', SUN2 = '#FF2975', WH = '#F7E9FF', LAV = '#B69CFF';
 let skies = [], grain;
 const glow = (K, c, b = 16) => { K.ctx.shadowColor = c; K.ctx.shadowBlur = b * K.u; };
@@ -140,9 +143,11 @@ export default {
     const by = H - ((t * 0.12) % 1) * H * 1.3; const rr = L.rng(K.frame);
     ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(0, by, W, 10 * u); for (let j = 0; j < 12; j++) { ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(rr() * W, by + rr() * 10 * u, (10 + rr() * 60) * u, u); }
     L.drawGrain(ctx, grain, K.frame, 0.06, 'overlay');
-    // OSD
+    if (CH(K)) {
+// OSD
     const f = `400 ${34 * u}px VT323`, sec = Math.floor(t); L.text(ctx, '▶ PLAY', 44 * u, 60 * u, { font: f, color: 'rgba(255,255,255,.85)' });
     L.text(ctx, `SP  0:${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`, W - 44 * u, 60 * u, { font: f, color: 'rgba(255,255,255,.85)', align: 'right' });
+    }
     const v = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.4, W / 2, H / 2, Math.max(W, H) * 0.72); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.45)'); ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
   },
 };

@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { title, para, layoutRich, drawRich } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CHROME = K => K.spec.chrome !== false;
+
 const BLK = '#0B0B0D', WHT = '#F2F2F0', GRY = '#8C8C92', RED = '#FF2E4D', CYN = '#00E1FF';
 let grain;
 // burst envelope: short glitch bursts at deterministic times (+ during entrances)
@@ -41,9 +44,11 @@ export default {
     const { ctx, W, H, u } = K; ctx.fillStyle = BLK; ctx.fillRect(0, 0, W, H);
     // faint horizontal scan structure + a data margin
     ctx.fillStyle = 'rgba(255,255,255,.025)'; for (let y = 0; y < H; y += 4 * u) ctx.fillRect(0, y, W, u);
-    const f = `500 ${15 * u}px "JetBrains Mono"`;
+    if (CHROME(K)) {
+const f = `500 ${15 * u}px "JetBrains Mono"`;
     L.text(ctx, `SEQ_${String(s.i + 1).padStart(3, '0')} // ${s.type.toUpperCase()} // ${(K.t * 1000 | 0).toString(16).toUpperCase().padStart(6, '0')}`, 40 * u, H - 20 * u, { font: f, color: '#48484E' });
     L.text(ctx, 'REC ●', W - 40 * u, 40 * u, { font: f, color: (K.frame >> 4) % 2 ? RED : '#48484E', align: 'right' });
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     const b = { ...box }, g = Math.max(1 - L.clamp(p * 1.3), 0) + burst(K, s.i) * 0.8;

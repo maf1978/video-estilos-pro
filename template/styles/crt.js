@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { title, para } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const AMB = '#FFB000', HOT = '#FFE2A0', DIM = '#8A5A10', SOFT = '#C08A2A', DEEP = '#3A2406', BLK = '#0A0703';
 let scan, grain, frameC;
 const glow = (K, blur = 16) => { K.ctx.shadowColor = 'rgba(255,176,0,.75)'; K.ctx.shadowBlur = blur * K.u; };
@@ -44,11 +47,13 @@ export default {
   background(K, s) {
     const { ctx, W, H, u, t } = K; ctx.fillStyle = BLK; ctx.fillRect(0, 0, W, H);
     const g = ctx.createRadialGradient(W / 2, H * 0.45, 0, W / 2, H * 0.45, Math.max(W, H) * 0.6); g.addColorStop(0, 'rgba(255,150,0,.07)'); g.addColorStop(1, 'rgba(255,150,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    // status line top
+    if (CH(K)) {
+// status line top
     const f = `400 ${26 * u}px VT323`;
     L.text(ctx, `SISTEMA-${String(s.i + 1).padStart(2, '0')}  ::  ${s.type.toUpperCase()}  ::  MEM ${(640 - s.i * 12)}K OK`, 56 * u, 62 * u, { font: f, color: DIM });
     L.text(ctx, `T+${K.t.toFixed(1).padStart(5, '0')}`, W - 56 * u, 62 * u, { font: f, color: DIM, align: 'right' });
     ctx.fillStyle = DEEP; ctx.fillRect(56 * u, 74 * u, W - 112 * u, 2 * u);
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     const b = { ...box }; if (b.y < 96 * K.u) { b.h -= 96 * K.u - b.y; b.y = 96 * K.u; } if (b.x < 56 * K.u) { b.w -= 56 * K.u - b.x; b.x = 56 * K.u; }

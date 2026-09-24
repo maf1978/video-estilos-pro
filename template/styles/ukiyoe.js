@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const SUMI = '#1A1A1E', INDIGO = '#1F3A5F', AI = '#3F6E96', VERM = '#C23B22', CREAM = '#EFE3C8', FOAM = '#F6EEDD', ROSE = '#E7B7A0';
 const bgs = {}; let washi, grain;
 // woodblock print of the person: 4 flat tones + black key line
@@ -52,7 +55,7 @@ function seigaiha(ctx, x0, y0, W, H, R, u, col) {
   ctx.restore();
 }
 const initials = K => { const n = K.person?.name || K.spec.brand || String(K.spec.scenes[0]?.title || 'V').replace(/[*¿¡]/g, ''); return n.split(/\s+/).filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ0-9]/.test(w)).slice(0, 2).map(x => x[0]).join('').toUpperCase(); };
-const below = (K, b) => { const m = (K.vertical ? 150 : 110) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.62) } : b; };
+const below = (K, b) => { if (!CH(K)) return b; const m = (K.vertical ? 150 : 110) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.62) } : b; };
 
 export default {
   id: 'ukiyoe', name: 'Ukiyo-e',
@@ -86,9 +89,11 @@ export default {
     const sz = 64 * u, x = W - 70 * u - sz, y = (K.vertical ? 0.76 : 0.72) * H;
     ctx.save(); ctx.fillStyle = VERM; ctx.globalAlpha = 0.9; L.rrect(ctx, x, y, sz, sz, 6 * u); ctx.fill(); ctx.strokeStyle = CREAM; ctx.lineWidth = 2 * u; ctx.strokeRect(x + 6 * u, y + 6 * u, sz - 12 * u, sz - 12 * u);
     L.text(ctx, initials(K), x + sz / 2, y + sz * 0.66, { font: K.S.type.display(sz * 0.42), color: CREAM, align: 'center' }); ctx.restore();
-    // title slip (tanzaku) with the sheet number
+    if (CH(K)) {
+// title slip (tanzaku) with the sheet number
     const tx = W - 88 * u, ty = (s.i % 3 === 1 ? 210 : 44) * u; ctx.save(); ctx.fillStyle = '#F4EAD4'; ctx.fillRect(tx, ty, 40 * u, 120 * u); ctx.strokeStyle = SUMI; ctx.lineWidth = 1.5 * u; ctx.strokeRect(tx, ty, 40 * u, 120 * u);
     ctx.translate(tx + 27 * u, ty + 12 * u); ctx.rotate(Math.PI / 2); L.text(ctx, 'Nº ' + String(s.i + 1).padStart(2, '0'), 0, 0, { font: K.S.type.label(18 * u), color: SUMI, ls: 2 * u }); ctx.restore();
+    }
   },
   headline(K, str, box, p, s, o = {}) { title(K, str, below(K, box), p, { align: o.align, size: o.size, color: SUMI, emColor: VERM, reveal: 'rise', valign: 'middle' }); },
   text(K, str, box, p, role, s, o = {}) {

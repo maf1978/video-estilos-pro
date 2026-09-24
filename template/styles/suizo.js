@@ -2,9 +2,12 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const INK = '#111111', RED = '#E4331B', BG = '#ECEAE4';
 let grain;
-const below = (K, b) => { const m = 118 * K.u; return b.y < m ? { ...b, y: m, h: b.h - (m - b.y) } : b; };
+const below = (K, b) => { if (!CH(K)) return b; const m = 118 * K.u; return b.y < m ? { ...b, y: m, h: b.h - (m - b.y) } : b; };
 const tone = s => s.type === 'statement' && s.i % 2 === 1 ? { bg: RED, ink: INK, em: BG } : s.type === 'chapter' ? { bg: INK, ink: BG, em: RED } : { bg: BG, ink: INK, em: RED };
 
 export default {
@@ -22,11 +25,13 @@ export default {
     const cols = K.vertical ? 6 : 12, m = 80 * u, cw = (W - 2 * m) / cols;
     ctx.strokeStyle = L.rgba(c.ink === INK ? '#000000' : '#FFFFFF', 0.07); ctx.lineWidth = 1;
     for (let i = 0; i <= cols; i++) { ctx.beginPath(); ctx.moveTo(m + i * cw, 0); ctx.lineTo(m + i * cw, H); ctx.stroke(); }
-    // header: index, type, live timecode
+    if (CH(K)) {
+// header: index, type, live timecode
     const mono = K.S.type.mono(20 * u), y = 64 * u, tc = K.t, f = Math.floor((tc % 1) * 30);
     L.text(ctx, String(s.i + 1).padStart(2, '0') + ' — ' + s.type.toUpperCase(), m + 6 * u, y, { font: mono, color: c.ink });
     L.text(ctx, [Math.floor(tc / 3600), Math.floor(tc / 60) % 60, Math.floor(tc) % 60, f].map(v => String(v).padStart(2, '0')).join(':'), W - m, y, { font: mono, color: c.ink, align: 'right' });
     ctx.fillStyle = c.ink; ctx.fillRect(m, y + 22 * u, (W - 2 * m) * L.E.out(L.clamp(s.t / 0.6)), 3 * u);
+    }
   },
   headline(K, str, box, p, s, o = {}) { const c = tone(s); box = below(K, box); title(K, str, box, p, { align: o.align === 'center' && !K.vertical ? 'left' : o.align, size: o.size, color: c.ink, emColor: c.em, reveal: 'rise', valign: 'top' }); },
   text(K, str, box, p, role, s, o = {}) {

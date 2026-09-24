@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { para } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const PX = 6; // one "game pixel" = 6 screen px at 1080p
 const C = { night: '#1a1c2c', plum: '#5d275d', red: '#b13e53', orange: '#ef7d57', gold: '#ffcd75', lime: '#a7f070', green: '#38b764', teal: '#257179', navy: '#29366f', blue: '#3b5dc9', sky: '#41a6f6', cyan: '#73eff7', white: '#f4f4f4', silver: '#94b0c2', slate: '#566c86', dark: '#333c57' };
 const SPRITE_PAL = ['#1a1c2c', '#262b44', '#333c57', '#2a1a1a', '#4a2a20', '#6b3b2e', '#a8664a', '#dd9a70', '#f6c7a0', '#fff1e0', '#257179', '#29366f', '#b13e53'].map(h => L.hexRgb(h));
@@ -78,9 +81,11 @@ export default {
     const { ctx } = K; ctx.imageSmoothingEnabled = false; ctx.drawImage(lo, 0, 0, K.W, K.H); ctx.imageSmoothingEnabled = true;
     // dim the world behind text-heavy scenes so it reads
     if (!['hook', 'cta'].includes(s.type)) { ctx.fillStyle = 'rgba(26,28,44,.55)'; ctx.fillRect(0, 0, K.W, K.H); }
-    // HUD
+    if (CH(K)) {
+// HUD
     const u = K.u, hud = `ESCENA ${String(s.i + 1).padStart(2, '0')}   ♥♥♥   XP ${String(Math.floor(K.t * 37)).padStart(4, '0')}`;
     L.text(ctx, hud, K.W - 30 * u, 44 * u, { font: `400 ${16 * u}px "Press Start 2P"`, color: C.silver, align: 'right' });
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     const b = { ...box }; if (b.y < 70 * K.u) { b.h -= 70 * K.u - b.y; b.y = 70 * K.u; }

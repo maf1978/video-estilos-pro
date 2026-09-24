@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, fitSubject, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const BLUE = '#12457A', DEEP = '#0C3461', WHITE = '#EAF3FF', PENCIL = '#F4D35E', FAINT = 'rgba(234,243,255,.55)';
 let bgC, grain;
 // person as white line drawing: edges of the luminance + light hatch on darks
@@ -18,7 +21,7 @@ const LINES = L.memo(h => {
     return [234, 243, 255, v * 255];
   });
 });
-const below = (K, b) => { const m = (K.vertical ? 150 : 116) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
+const below = (K, b) => { if (!CH(K)) return b; const m = (K.vertical ? 150 : 116) * K.u; return b.y < m ? { ...b, y: m, h: Math.max(b.h - (m - b.y), b.h * 0.6) } : b; };
 // dimension line with ticks and a measure
 function cota(K, x1, y1, x2, y2, label, p, off = 0) {
   if (p <= 0) return; const { ctx, u } = K, dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len * off, ny = dx / len * off;
@@ -54,7 +57,8 @@ export default {
   },
   background(K, s) {
     const { ctx, W, u } = K; ctx.drawImage(bgC, 0, 0);
-    // title block (rótulo) top-right
+    if (CH(K)) {
+// title block (rótulo) top-right
     const bw = (K.vertical ? 420 : 520) * u, bh = 64 * u, x = W - 36 * u - bw, y = 36 * u;
     ctx.save(); ctx.strokeStyle = 'rgba(234,243,255,.7)'; ctx.lineWidth = 1 * u; ctx.strokeRect(x, y, bw, bh);
     const cols = [0.34, 0.6, 0.8]; cols.forEach(c => { ctx.beginPath(); ctx.moveTo(x + bw * c, y); ctx.lineTo(x + bw * c, y + bh); ctx.stroke(); });
@@ -67,6 +71,7 @@ export default {
     ctx.save(); ctx.font = K.S.type.mono(11 * u); ctx.fillStyle = 'rgba(234,243,255,.45)'; const n2 = K.vertical ? 4 : 8;
     for (let k = 0; k < n2; k++) ctx.fillText('ABCDEFGH'[k], 36 * u + (k + 0.5) * (W - 72 * u) / n2, K.H - 42 * u);
     ctx.restore();
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     box = below(K, box); const r = title(K, str, box, p, { align: o.align, size: o.size, color: WHITE, emColor: PENCIL, reveal: 'wipe', valign: 'middle' });

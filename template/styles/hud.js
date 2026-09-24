@@ -3,6 +3,9 @@
 import * as L from '../engine/lib.js';
 import { title, para } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const BG = '#050B16', CY = '#5CE1FF', CYD = 'rgba(92,225,255,.35)', WH = '#E6F6FF', OR = '#FFB547', DIMT = '#6F8CA8';
 let grid;
 const glow = (K, b = 12, c = 'rgba(92,225,255,.7)') => { K.ctx.shadowColor = c; K.ctx.shadowBlur = b * K.u; };
@@ -41,12 +44,14 @@ export default {
     // side data stream
     const f = `400 ${14 * u}px "Share Tech Mono"`, x = W - 28 * u, n = Math.floor(H * K.cap / (22 * u));
     for (let k = 3; k < n; k++) { const r = L.rng((k + Math.floor(t * 6)) * 97 + s.i); L.text(ctx, (r() * 0xFFFFFF | 0).toString(16).toUpperCase().padStart(6, '0') + ' ' + (r() * 99).toFixed(1), x, k * 22 * u, { font: f, color: 'rgba(92,225,255,.22)', align: 'right' }); }
-    // header strip
+    if (CH(K)) {
+// header strip
     L.text(ctx, `SYS//${String(s.i + 1).padStart(2, '0')}  ${s.type.toUpperCase()}  ·  SEÑAL ${(96 + Math.sin(t * 2) * 3).toFixed(1)}%`, 40 * u, 44 * u, { font: `400 ${16 * u}px "Share Tech Mono"`, color: DIMT });
     ctx.fillStyle = CYD; ctx.fillRect(40 * u, 56 * u, 260 * u, 1.5 * u); ctx.fillStyle = CY; ctx.fillRect(40 * u, 55 * u, 260 * u * ((t * 0.3) % 1), 3 * u);
+    }
   },
   headline(K, str, box, p, s, o = {}) {
-    const b = { ...box }; if (b.y < 76 * K.u) { b.h -= 76 * K.u - b.y; b.y = 76 * K.u; }
+    const b = { ...box }, tm = CH(K) ? 76 * K.u : 0; if (b.y < tm) { b.h -= tm - b.y; b.y = tm; }
     glow(K, 10, 'rgba(92,225,255,.45)'); const r = title(K, str, b, p, { align: o.align, size: o.size, color: WH, emColor: OR, reveal: 'wipe', valign: 'top', ls: 0.02, lh: 0.95 }); ng(K);
     if (p > 0 && p < 1) { const x = b.x + (b.w + 40) * L.E.inOut(L.clamp(p * 1.1)) - 20; K.ctx.fillStyle = CY; glow(K, 18); K.ctx.fillRect(x, r.y0 - 10 * K.u, 3 * K.u, r.total + 20 * K.u); ng(K); }
   },

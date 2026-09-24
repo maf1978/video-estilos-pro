@@ -2,6 +2,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const PAPER = '#F6E4D5', INK = '#1E1A17', BLUE = '#1B5C8F', CLARET = '#9B2242', MUTED = '#6F6259', RULE = 'rgba(30,26,23,.22)', GRID = 'rgba(30,26,23,.09)';
 let paperC;
 const SECTIONS = ['ANÁLISIS', 'MERCADOS', 'TENDENCIAS', 'DATOS', 'OPINIÓN'];
@@ -26,11 +29,13 @@ export default {
   background(K, s) {
     const { ctx, W, H, u } = K; ctx.drawImage(paperC, 0, 0);
     const m = 70 * u, y = (K.vertical ? 96 : 66) * u;
-    // masthead: section tag, rule, edition line
+    if (CH(K)) {
+// masthead: section tag, rule, edition line
     ctx.fillStyle = CLARET; ctx.fillRect(m, y - 30 * u, 6 * u, 26 * u);
     L.text(ctx, SECTIONS[s.i % SECTIONS.length], m + 16 * u, y - 10 * u, { font: K.S.type.label(18 * u), color: INK, ls: 2 });
     L.text(ctx, `Edición especial · p. ${s.i + 1}`, W - m, y - 10 * u, { font: K.S.type.em(20 * u), color: MUTED, align: 'right' });
     ctx.fillStyle = INK; ctx.fillRect(m, y, W - 2 * m, 2 * u); ctx.fillRect(m, y + 5 * u, W - 2 * m, 0.8 * u);
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     const top = (K.vertical ? 130 : 100) * K.u; if (box.y < top) box = { ...box, y: top, h: box.h - (top - box.y) };
